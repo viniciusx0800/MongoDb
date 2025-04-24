@@ -57,3 +57,38 @@ db.clientes.insertMany([
 
  ])
 
+
+### Tarefa 4: Consultas Avançadas
+
+1. Busque produtos por faixa de preço (ex:100 entre R 500)
+db.produtos.find({
+preco: { $gte: 100, $lte: 500 }
+})
+
+2. Encontre produtos que contenham uma palavra específica no nome (usando regex)
+db.produtos.find({ nome: { $regex: /Bola/i } })
+
+3. Busque produtos por categoria e ordene por preço (decrescente)
+db.produtos.find(
+{ categoria: "Andame" },
+{ nome: 1, preco: 1 }
+)
+
+4. Encontre clientes que moram em uma determinada cidade
+db.clientes.find({
+  "endereco.cidade": "irece"
+})
+
+5. Busque produtos que tenham tags específicas
+db.produtos.find({ tags: { $all: ["fio"] } })
+
+6. Crie uma consulta que retorne apenas os 5 produtos mais caros
+db.produtos.find(
+{ categoria: "Andame" },
+{ nome: 1, preco: 1 }
+).limit(5)
+
+
+
+
+
