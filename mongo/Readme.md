@@ -174,4 +174,76 @@ Este repositório contém as respostas das tarefas propostas na apostila de Mong
 
 ---
 
+### Tarefa 7: Agregações Básicas
+
+1.  Calcule o valor médio dos pedidos:
+    ```javascript
+      db.pedidos.aggregate([
+      {
+        $group: {
+          _id: null,
+          valorMedio: { $avg: "$valorTotal" }
+        }
+      }
+    ])
+
+  
+    ```
+
+2.  Conte o número de produtos por categoria:
+    ```javascript
+      db.produtos.aggregate([
+      {
+        $group: {
+          _id: "$categoria",
+          quantidade: { $sum: 1 }
+        }
+      }
+    ])
+
+    
+    ```
+
+3. Encontre os 3 clientes com maior valor total em pedidos:
+    ```javascript
+    db.pedidos.aggregate([
+    {
+      $group: {
+        _id: "$cliente",
+        totalGasto: { $sum: "$valorTotal" }
+      }
+    },
+    { $sort: { totalGasto: -1 } },
+    { $limit: 3 }
+   ])
+    ```
+
+4. Calcule o total de vendas por mês: 
+```javascript
+db.pedidos.aggregate([
+  {
+    $group: {
+      _id: "$data",
+      totalVendas: { $sum: "$valorTotal" }
+    }
+  },
+  { $sort: { "_id": 1 } }
+])
+```
+
+5. Crie um relatório de produtos mais vendidos:
+    ```javascript
+    db.pedidos.aggregate([
+      { $unwind: "$itens" },
+      {
+        $group: {
+          _id: "$itens.produtoNome",
+          quantidadeTotal: { $sum: "$itens.quantidade" }
+        }
+      },
+      { $sort: { quantidadeTotal: -1 } }
+    ])
+  
+    ```
+
 > 📘 *Este material foi desenvolvido com fins educacionais para reforçar o aprendizado prático de MongoDB, cobrindo inserções, consultas, relacionamentos e otimizações.*
