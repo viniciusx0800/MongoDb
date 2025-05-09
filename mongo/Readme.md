@@ -245,5 +245,119 @@ db.pedidos.aggregate([
     ])
   
     ```
+### Tarefa 8: Agregações Avançadas
+
+1. Crie um pipeline que mostre a distribuição de notas nas avaliações por categoria de produto:
+    ```javascript
+     in andamennnntttttoooo
+
+  
+    ```
+
+2. Gere um relatório de vendas por dia da semana e hora do dia:
+    ```javascript
+     db.pedidos.aggregate([
+        {
+          $addFields: {
+            dataPedido: { $dateFromString: { dateString: "$data" } }
+          }
+        },
+        {
+          $project: {
+            diaSemana: { $dayOfWeek: "$dataPedido" }, // 1 (domingo) a 7 (sábado)
+            horaDia: { $hour: "$dataPedido" },
+            valorTotal: 1
+          }
+        },
+        {
+          $group: {
+            _id: { diaSemana: "$diaSemana", horaDia: "$horaDia" },
+            totalVendas: { $sum: "$valorTotal" },
+            qtdPedidos: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { "_id.diaSemana": 1, "_id.horaDia": 1 }
+        }
+      ])
+
+    
+    ```
+
+3. Calcule o tempo médio entre a criação do pedido e sua entrega:
+    ```javascript
+   db.pedidos.aggregate([
+      { $project: {
+          tempoEntregaMS: { $subtract: ["$dataEntrega", { $dateFromString: { dateString: "$data" } }] }
+      }},
+      { $project: {
+          tempoEntregaDias: { $divide: ["$tempoEntregaMS", 1000 * 60 * 60 * 24] }
+      }},
+      { $group: {
+          _id: null,
+          tempoMedioDias: { $avg: "$tempoEntregaDias" }
+      }}
+    ])
+
+    ```
+
+4.  Identifique produtos que são frequentemente comprados juntos: 
+```javascript
+  db.pedidos.aggregate([
+    { $project: { produtos: "$itens.produto" } },
+    { $project: { produtos: 1, produtos2: "$produtos" } },
+    { $unwind: "$produtos" },
+    { $unwind: "$produtos2" },
+    { $match: { $expr: { $lt: ["$produtos", "$produtos2"] } } },
+    { $group: {
+        _id: { produtoA: "$produtos", produtoB: "$produtos2" },
+        quantidadeCompradosJuntos: { $sum: 1 }
+      }
+    },
+    { $sort: { quantidadeCompradosJuntos: -1 } }
+  ])
+
+```
+
+5. Crie um dashboard com indicadores de desempenho (vendas, ticket médio, produtos mais vistos):
+    ```javascript
+   db.pedidos.aggregate([
+      {
+        $facet: {
+          indicadoresGerais: [
+            { $unwind: "$itens" },
+            { $group: {
+                _id: "$_id",
+                totalPedido: { $sum: { $multiply: ["$itens.quantidade", "$itens.preco"] } }
+              }
+            },
+            { $group: {
+                _id: null,
+                totalVendas: { $sum: "$totalPedido" },
+                quantidadePedidos: { $sum: 1 },
+                ticketMedio: { $avg: "$totalPedido" }
+              }
+            },
+            { $project: { _id: 0, totalVendas: 1, quantidadePedidos: 1, ticketMedio: 1 } }
+          ],
+          produtosMaisVendidos: [
+            { $unwind: "$itens" },
+            { $group: {
+                _id: "$itens.produto",
+                quantidadeVendida: { $sum: "$itens.quantidade" },
+                totalVendido: { $sum: { $multiply: ["$itens.quantidade", "$itens.preco"] } }
+              }
+            },
+            { $sort: { quantidadeVendida: -1 } },
+            { $limit: 5 }
+          ]
+        }
+      }
+      ])
+
+  
+    ```
+
+    
 
 > 📘 *Este material foi desenvolvido com fins educacionais para reforçar o aprendizado prático de MongoDB, cobrindo inserções, consultas, relacionamentos e otimizações.*
