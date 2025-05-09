@@ -264,7 +264,7 @@ db.pedidos.aggregate([
         },
         {
           $project: {
-            diaSemana: { $dayOfWeek: "$dataPedido" }, // 1 (domingo) a 7 (sábado)
+            diaSemana: { $dayOfWeek: "$dataPedido" }, 
             horaDia: { $hour: "$dataPedido" },
             valorTotal: 1
           }
