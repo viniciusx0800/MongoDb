@@ -249,7 +249,20 @@ db.pedidos.aggregate([
 
 1. Crie um pipeline que mostre a distribuição de notas nas avaliações por categoria de produto:
     ```javascript
-     in andamennnntttttoooo
+     db.avaliacoes.aggregate([
+        {
+          $group: {
+            _id: { categorias: "$categorias", nota: "$nota" },
+            total: { $sum: 1 }
+          }
+        },
+        {
+          $sort: {
+            "_id.categorias": 1,
+            "_id.nota": 1
+          }
+        }
+      ])
 
   
     ```
